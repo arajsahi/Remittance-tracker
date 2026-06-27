@@ -6,6 +6,14 @@ from flask import Flask, render_template_string
 from dotenv import load_dotenv
 load_dotenv()
 
+def get_wise_rate():
+    url = "https://open.er-api.com/v6/latest/USD"
+    response = requests.get(url)
+    data = response.json()
+    rate = data["rates"]["NPR"]
+    print(f"Market USD rate: {rate} NPR")
+    return rate
+
 def get_nrb_rate():
     today = datetime.now().strftime("%Y-%m-%d")
     url = f"https://www.nrb.org.np/api/forex/v1/rates?from={today}&to={today}&per_page=5&page=1"
@@ -82,6 +90,9 @@ def index():
     rates = cursor.fetchall()
     conn.close()
     return render_template_string(HTML, rates=rates)
+wise_rate = get_wise_rate()
+save_to_db("WISE",wise_rate,wise_rate)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
+
